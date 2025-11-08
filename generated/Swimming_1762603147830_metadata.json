@@ -1,0 +1,18 @@
+{
+  "sport": "Swimming",
+  "faculties": [
+    {
+      "position": 1,
+      "name": "Physical Education"
+    },
+    {
+      "position": 2,
+      "name": "Sports Science"
+    },
+    {
+      "position": 3,
+      "name": "Health Studies"
+    }
+  ],
+  "generatedAt": "2025-11-08T11:59:07.831Z"
+}

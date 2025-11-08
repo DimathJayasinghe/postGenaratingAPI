@@ -1,0 +1,26 @@
+{
+  "name": "post-generator",
+  "version": "1.0.0",
+  "description": "Generate sports posts with faculty names from template",
+  "main": "postgenerator.js",
+  "scripts": {
+    "start": "node postgenerator.js",
+    "generate": "node postgenerator_advanced.js",
+    "test": "node example_usage.js"
+  },
+  "keywords": [
+    "post",
+    "generator",
+    "image",
+    "template"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "express": "^5.1.0",
+    "form-data": "^4.0.0",
+    "multer": "^2.0.2",
+    "sharp": "^0.34.5"
+  }
+}

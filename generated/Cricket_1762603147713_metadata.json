@@ -1,0 +1,18 @@
+{
+  "sport": "Cricket",
+  "faculties": [
+    {
+      "position": 1,
+      "name": "Technology"
+    },
+    {
+      "position": 2,
+      "name": "Design"
+    },
+    {
+      "position": 3,
+      "name": "Management"
+    }
+  ],
+  "generatedAt": "2025-11-08T11:59:07.714Z"
+}

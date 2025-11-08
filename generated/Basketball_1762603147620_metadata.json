@@ -1,0 +1,18 @@
+{
+  "sport": "Basketball",
+  "faculties": [
+    {
+      "position": 1,
+      "name": "Science"
+    },
+    {
+      "position": 2,
+      "name": "Business"
+    },
+    {
+      "position": 3,
+      "name": "Law"
+    }
+  ],
+  "generatedAt": "2025-11-08T11:59:07.621Z"
+}

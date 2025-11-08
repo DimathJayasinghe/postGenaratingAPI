@@ -1,0 +1,18 @@
+{
+  "sport": "Football",
+  "faculties": [
+    {
+      "position": 1,
+      "name": "Engineering"
+    },
+    {
+      "position": 2,
+      "name": "Medical"
+    },
+    {
+      "position": 3,
+      "name": "Arts"
+    }
+  ],
+  "generatedAt": "2025-11-08T11:59:07.540Z"
+}
