@@ -1,271 +1,151 @@
-# Post Generator
 
-Generate sports posts with faculty names overlaid on template images.
+### Steps to Organize and Create Necessary Files
 
-## Features
+1. **Create the Directory Structure**:
+   - Create the directories as shown in the suggested structure.
 
-- ✅ Replace array faculty names with their positions on template
-- ✅ Add sport name above the faculty list
-- ✅ Generate high-quality PNG posts
-- ✅ Send generated posts to server
-- ✅ Save posts locally in `generated/` folder
-- ✅ Batch processing support
-- ✅ Customizable text positions and styling
+2. **Move Existing Files**:
+   - Move `server.js` to `src/`.
+   - Move `postgenerator_advanced.js` to `src/` and rename it to `postGenerator.js`.
+   - Move the `templates/` and `generated/` folders into `src/`.
 
-## Installation
+3. **Create Controllers, Routes, and Services**:
+   - Create a `controllers` folder and add `postController.js` to handle the logic for generating posts.
+   - Create a `routes` folder and add `postRoutes.js` to define the API endpoints.
+   - Create a `services` folder and add `postService.js` to handle the business logic related to post generation.
 
-```bash
-npm install
-```
+4. **Create Middleware for Error Handling**:
+   - Create a `middlewares` folder and add `errorHandler.js` to manage errors in a centralized way.
 
-## Required Dependencies
+5. **Environment Variables**:
+   - Create a `.env` file to store environment variables like the server port.
 
-- `axios` - HTTP client for server communication
-- `sharp` - Image processing library
-- `form-data` - Multipart form data handling
+6. **Update `package.json`**:
+   - Ensure the `main` field points to `src/server.js`.
+   - Add scripts for starting the server and running tests.
 
-## Folder Structure
+7. **Create Tests**:
+   - Create a `tests` folder and add a test file for the post generator.
 
-```
-project/
-├── postgenerator.js          # Basic generator
-├── postgenerator_advanced.js # Advanced generator with image processing
-├── example_usage.js          # Usage examples
-├── package.json              # Dependencies
-├── templates/                # Template images folder
-│   └── post_template.png    # Your template image
-└── generated/                # Output folder (auto-created)
-    ├── Football_1234567890.png
-    ├── Football_1234567890_metadata.json
-    └── ...
-```
+8. **Update README.md**:
+   - Update the README to reflect the new structure and usage instructions.
 
-## Template Setup
+### Example Code for New Files
 
-1. Place your template image at `templates/post_template.png`
-2. The template should have 3 placeholder areas for faculty names
-3. Configure positions in the generator constructor
-
-## Configuration
-
-### Text Positions
-
-Based on your template image, you can configure:
-
-```javascript
-const generator = new PostGenerator('http://localhost:3000', {
-  // Sport name configuration
-  sportPosition: { x: 250, y: 50 },  // Top position for sport name
-  sportFontSize: 48,
-  sportColor: '#000000',
-  
-  // Faculty positions (matching array indices)
-  facultyPositions: [
-    { x: 150, y: 340 },  // Position for faculties[0]
-    { x: 150, y: 420 },  // Position for faculties[1]
-    { x: 150, y: 500 }   // Position for faculties[2]
-  ],
-  facultyFontSize: 32,
-  facultyColor: '#FFFFFF'
-});
-```
-
-## Usage
-
-### Method 1: Using Node.js
-
-```javascript
-const PostGenerator = require('./postgenerator_advanced');
-
-const generator = new PostGenerator('http://localhost:3000');
-
-// Generate a single post
-await generator.generatePost('Football', [
-  'Engineering Faculty',
-  'Medical Faculty', 
-  'Arts Faculty'
-]);
-```
-
-### Method 2: Command Line
-
-```bash
-# Basic usage
-node postgenerator_advanced.js "Football" "Engineering" "Medical" "Arts"
-
-# With custom server URL
-node postgenerator_advanced.js "Basketball" "Science" "Business" "Law" "http://myserver.com:3000"
-```
-
-### Method 3: Using Examples
-
-```bash
-npm test
-```
-
-## API
-
-### `generatePost(sport, faculties)`
-
-Generates a single post.
-
-**Parameters:**
-- `sport` (string) - Name of the sport (e.g., "Football")
-- `faculties` (Array<string>) - Array of faculty names (e.g., ["Engineering", "Medical", "Arts"])
-
-**Returns:** Promise<Object>
-```javascript
-{
-  success: true,
-  filename: "Football_1234567890.png",
-  filepath: "/path/to/generated/Football_1234567890.png",
-  serverResponse: { ... },
-  sport: "Football",
-  faculties: ["Engineering", "Medical", "Arts"]
-}
-```
-
-### `generateMultiplePosts(postDataArray)`
-
-Generates multiple posts in batch.
-
-**Parameters:**
-- `postDataArray` (Array<Object>) - Array of post data objects
-
-```javascript
-await generator.generateMultiplePosts([
-  {
-    sport: 'Football',
-    faculties: ['Engineering', 'Medical', 'Arts']
-  },
-  {
-    sport: 'Basketball',
-    faculties: ['Science', 'Business', 'Law']
-  }
-]);
-```
-
-### `getGeneratedPosts()`
-
-Returns list of all generated posts.
-
-```javascript
-const posts = generator.getGeneratedPosts();
-// Returns: Array of { filename, path, createdAt }
-```
-
-## Server Integration
-
-The generator sends posts to your server with the following data:
-
-**Endpoint:** `POST /api/posts/upload`
-
-**Form Data:**
-- `post` - PNG image file
-- `sport` - Sport name (string)
-- `faculties` - Faculty array (JSON string)
-- `timestamp` - Generation timestamp
-
-**Example Server Handler (Express.js):**
-
+**src/server.js**
 ```javascript
 const express = require('express');
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const postRoutes = require('./routes/postRoutes');
+const errorHandler = require('./middlewares/errorHandler');
+require('dotenv').config();
 
-app.post('/api/posts/upload', upload.single('post'), (req, res) => {
-  const { sport, faculties } = req.body;
-  const file = req.file;
-  
-  console.log('Received post:', sport);
-  console.log('Faculties:', JSON.parse(faculties));
-  console.log('File:', file.filename);
-  
-  // Process and save to database
-  // Send to clients via Socket.io/WebSocket
-  
-  res.json({ 
-    success: true, 
-    postId: file.filename 
-  });
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use('/api/posts', postRoutes);
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 ```
 
-## Output
+**src/routes/postRoutes.js**
+```javascript
+const express = require('express');
+const postController = require('../controllers/postController');
 
-### Generated Image
-- **Format:** PNG
-- **Location:** `generated/[Sport]_[Timestamp].png`
-- **Features:** Sport name + 3 faculty names overlaid on template
+const router = express.Router();
 
-### Metadata File
-Each generated post includes a metadata JSON file:
+router.post('/generate', postController.generatePost);
+router.get('/health', postController.healthCheck);
+
+module.exports = router;
+```
+
+**src/controllers/postController.js**
+```javascript
+const PostGenerator = require('../postGenerator');
+
+const generator = new PostGenerator();
+
+exports.generatePost = async (req, res) => {
+  const { sport, faculties } = req.body;
+  try {
+    const result = await generator.generatePost(sport, faculties);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.healthCheck = (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+};
+```
+
+**src/middlewares/errorHandler.js**
+```javascript
+module.exports = (err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ success: false, error: 'Internal Server Error' });
+};
+```
+
+**.env**
+```
+PORT=3000
+```
+
+**.gitignore**
+```
+node_modules/
+.env
+generated/
+```
+
+### Update `package.json`
+
+Make sure your `package.json` includes the necessary scripts:
 
 ```json
 {
-  "sport": "Football",
-  "faculties": [
-    { "position": 1, "name": "Engineering Faculty" },
-    { "position": 2, "name": "Medical Faculty" },
-    { "position": 3, "name": "Arts Faculty" }
-  ],
-  "generatedAt": "2025-11-08T10:30:00.000Z"
+  "name": "post-generator",
+  "version": "1.0.0",
+  "description": "Generate sports posts with faculty names from template",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "express": "^5.1.0",
+    "form-data": "^4.0.0",
+    "multer": "^2.0.2",
+    "sharp": "^0.34.5",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "jest": "^27.0.0"
+  },
+  "license": "MIT"
 }
 ```
 
-## Workflow
+### Final Steps
 
-```
-1. Server passes (sport, array[faculty1, faculty2, faculty3])
-   ↓
-2. PostGenerator receives data
-   ↓
-3. Read template image
-   ↓
-4. Create SVG text overlays:
-   - Sport name at top position
-   - Faculty[0] at position 1
-   - Faculty[1] at position 2
-   - Faculty[2] at position 3
-   ↓
-5. Composite overlays onto template using Sharp
-   ↓
-6. Save locally to generated/ folder
-   ↓
-7. Send to server via HTTP POST
-   ↓
-8. Server distributes to clients
-```
+1. **Install Dependencies**:
+   Run `npm install` to install all dependencies.
 
-## Error Handling
+2. **Run the Server**:
+   Use `npm start` to start the server.
 
-The generator includes comprehensive error handling:
+3. **Test the API**:
+   Use tools like Postman or curl to test the API endpoints.
 
-```javascript
-try {
-  const result = await generator.generatePost(sport, faculties);
-  console.log('Success:', result);
-} catch (error) {
-  console.error('Failed:', error.message);
-  // Handle error appropriately
-}
-```
+4. **Write Tests**:
+   Implement tests in the `tests/` directory to ensure your application works as expected.
 
-## Troubleshooting
-
-### "Failed to read template"
-- Ensure `templates/post_template.png` exists
-- Check file permissions
-
-### "Server upload failed"
-- Verify server URL is correct
-- Ensure server is running
-- Check network connectivity
-
-### "Invalid input"
-- Ensure sport is a non-empty string
-- Ensure faculties is an array with at least 1 element
-
-## License
-
-MIT
+This structure and organization will make your project more maintainable and ready for deployment.
