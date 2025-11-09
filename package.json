@@ -1,5 +1,5 @@
-
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "post-generating-api",
   "version": "1.0.0",
   "description": "Express API to generate sports posts as images",
